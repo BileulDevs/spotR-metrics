@@ -53,7 +53,12 @@ exports.getAllMetrics = async (req, res) => {
             const response = await axios.get(service.url);
             return {
               name: service.name,
-              metrics: response.data
+              metrics: response.data,
+              stats: {
+                success: response.data.filter(s => s.level === "info").length,
+                warn: response.data.filter(s => s.level === "warn").length,
+                error: response.data.filter(s => s.level === "error").length,
+              }
             };
           } catch (err) {
             return {
