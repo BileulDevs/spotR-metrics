@@ -4,7 +4,7 @@ require("dotenv").config();
 const services = JSON.parse(process.env.SERVICESLIST);
 
 exports.getServices = (req, res) => {
-    return res.status(200).send(services);
+  return res.status(200).send(services);
 }
 
 exports.getMetricsForOneService = async (req, res) => {
@@ -53,7 +53,6 @@ exports.getAllMetrics = async (req, res) => {
             const response = await axios.get(service.url);
             return {
               name: service.name,
-              metrics: response.data,
               stats: {
                 success: response.data.filter(s => s.level === "info").length,
                 warn: response.data.filter(s => s.level === "warn").length,
