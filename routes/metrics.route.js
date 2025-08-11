@@ -84,6 +84,9 @@ router.get('/:name', metricsController.getMetricsForOneService);
  *       404:
  *         description: Données non trouvées
  */
-router.get('/:name/:status', metricsController.getMetricsForOneServiceWithStatus);
+router.get(
+  '/:name/:status',
+  metricsController.getMetricsForOneServiceWithStatus
+);
 
 module.exports = router;

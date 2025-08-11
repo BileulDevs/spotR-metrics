@@ -6,7 +6,7 @@ jest.mock('axios');
 
 const services = [
   { name: 'service1', url: 'http://service1/api/metrics' },
-  { name: 'service2', url: 'http://service2/api/metrics' }
+  { name: 'service2', url: 'http://service2/api/metrics' },
 ];
 
 // Mock process.env.SERVICESLIST (important !)
@@ -61,20 +61,24 @@ describe('Service Controller', () => {
       await serviceController.getMetricsForOneService(req, res);
 
       expect(res.statusCode).toBe(500);
-      expect(res._getJSONData()).toEqual({ error: expect.stringContaining('Could not fetch metrics') });
+      expect(res._getJSONData()).toEqual({
+        error: expect.stringContaining('Could not fetch metrics'),
+      });
     });
   });
 
   describe('getMetricsForOneServiceWithStatus', () => {
     it('should return filtered metrics by status', async () => {
-      const req = httpMocks.createRequest({ params: { name: 'service1', status: 'info' } });
+      const req = httpMocks.createRequest({
+        params: { name: 'service1', status: 'info' },
+      });
       const res = httpMocks.createResponse();
 
       const mockData = [
         { level: 'info' },
         { level: 'warn' },
         { level: 'info' },
-        { level: 'error' }
+        { level: 'error' },
       ];
       axios.get.mockResolvedValue({ data: mockData });
 
@@ -83,12 +87,14 @@ describe('Service Controller', () => {
       expect(res.statusCode).toBe(200);
       expect(res._getJSONData()).toEqual([
         { level: 'info' },
-        { level: 'info' }
+        { level: 'info' },
       ]);
     });
 
     it('should return 404 if service not found', async () => {
-      const req = httpMocks.createRequest({ params: { name: 'notfound', status: 'info' } });
+      const req = httpMocks.createRequest({
+        params: { name: 'notfound', status: 'info' },
+      });
       const res = httpMocks.createResponse();
 
       await serviceController.getMetricsForOneServiceWithStatus(req, res);
@@ -98,17 +104,23 @@ describe('Service Controller', () => {
     });
 
     it('should return 400 if invalid status param', async () => {
-      const req = httpMocks.createRequest({ params: { name: 'service1', status: 'badstatus' } });
+      const req = httpMocks.createRequest({
+        params: { name: 'service1', status: 'badstatus' },
+      });
       const res = httpMocks.createResponse();
 
       await serviceController.getMetricsForOneServiceWithStatus(req, res);
 
       expect(res.statusCode).toBe(400);
-      expect(res._getJSONData()).toEqual({ error: 'Invalid status parameter. Must be one of: info, warning, error' });
+      expect(res._getJSONData()).toEqual({
+        error: 'Invalid status parameter. Must be one of: info, warning, error',
+      });
     });
 
     it('should return 500 on axios error', async () => {
-      const req = httpMocks.createRequest({ params: { name: 'service1', status: 'info' } });
+      const req = httpMocks.createRequest({
+        params: { name: 'service1', status: 'info' },
+      });
       const res = httpMocks.createResponse();
 
       axios.get.mockRejectedValue(new Error('Network failure'));
@@ -116,7 +128,9 @@ describe('Service Controller', () => {
       await serviceController.getMetricsForOneServiceWithStatus(req, res);
 
       expect(res.statusCode).toBe(500);
-      expect(res._getJSONData()).toEqual({ error: expect.stringContaining('Could not fetch metrics') });
+      expect(res._getJSONData()).toEqual({
+        error: expect.stringContaining('Could not fetch metrics'),
+      });
     });
   });
 
@@ -126,21 +140,21 @@ describe('Service Controller', () => {
       const res = httpMocks.createResponse();
 
       // Mock axios responses per service
-      axios.get.mockImplementation(url => {
+      axios.get.mockImplementation((url) => {
         if (url === 'http://service1/api/metrics') {
-          return Promise.resolve({ data: [
-            { level: 'info' },
-            { level: 'warn' },
-            { level: 'error' },
-            { level: 'info' }
-          ]});
+          return Promise.resolve({
+            data: [
+              { level: 'info' },
+              { level: 'warn' },
+              { level: 'error' },
+              { level: 'info' },
+            ],
+          });
         }
         if (url === 'http://service2/api/metrics') {
-          return Promise.resolve({ data: [
-            { level: 'info' },
-            { level: 'error' },
-            { level: 'error' }
-          ]});
+          return Promise.resolve({
+            data: [{ level: 'info' }, { level: 'error' }, { level: 'error' }],
+          });
         }
         return Promise.reject(new Error('Unknown URL'));
       });
@@ -157,17 +171,17 @@ describe('Service Controller', () => {
           stats: {
             success: 2,
             warn: 1,
-            error: 1
-          }
+            error: 1,
+          },
         },
         {
           name: 'service2',
           stats: {
             success: 1,
             warn: 0,
-            error: 2
-          }
-        }
+            error: 2,
+          },
+        },
       ]);
     });
 
@@ -175,7 +189,7 @@ describe('Service Controller', () => {
       const req = httpMocks.createRequest();
       const res = httpMocks.createResponse();
 
-      axios.get.mockImplementation(url => {
+      axios.get.mockImplementation((url) => {
         if (url === 'http://service1/api/metrics') {
           return Promise.reject(new Error('Network fail'));
         }
@@ -192,16 +206,16 @@ describe('Service Controller', () => {
       expect(data).toEqual([
         {
           name: 'service1',
-          error: expect.stringContaining('Error fetching metrics')
+          error: expect.stringContaining('Error fetching metrics'),
         },
         {
           name: 'service2',
           stats: {
             success: 1,
             warn: 0,
-            error: 0
-          }
-        }
+            error: 0,
+          },
+        },
       ]);
     });
 
@@ -215,7 +229,9 @@ describe('Service Controller', () => {
       await serviceController.getAllMetrics(req, res);
 
       expect(res.statusCode).toBe(500);
-      expect(res._getJSONData()).toEqual({ error: 'Failed to fetch metrics from services' });
+      expect(res._getJSONData()).toEqual({
+        error: 'Failed to fetch metrics from services',
+      });
 
       // Restore Promise.all
       Promise.all.mockRestore();
